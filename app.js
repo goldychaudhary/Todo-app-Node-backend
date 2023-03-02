@@ -27,27 +27,45 @@ initializeDBANdServer();
 
 //check apis middleware
 const checkValidity = (req, res, next) => {
-  const { search_q, status, priority, category } = req.query;
-  console.log(search_q, status, priority, category);
+  const { search_q, status, priority, category, dueDate } = req.query;
+  console.log(search_q, status, priority, category, dueDate);
   invalid_field = "";
   if (
     priority !== undefined &&
-    (priority !== "HIGH" || priority !== "MEDIUM" || priority !== "LOW")
+    priority != "HIGH" &&
+    priority != "MEDIUM" &&
+    priority != "LOW"
   ) {
     invalid_field = "Priority";
-    console.log(priority);
-  }
-
-  if (
+  } else if (
     status !== undefined &&
-    (status !== "TO DO" || status !== "IN PROGRESS" || status !== "DONE")
+    status !== "TO DO" &&
+    status !== "IN PROGRESS" &&
+    status !== "DONE"
   ) {
     invalid_field = "Status";
-    console.log(status);
+  } else if (
+    category !== undefined &&
+    category !== "TO DO" &&
+    category !== "IN PROGRESS" &&
+    category !== "DONE"
+  ) {
+    invalid_field = "Category";
+  } else if (
+    dueDate !== undefined &&
+    dueDate !== "TO DO" &&
+    dueDate !== "IN PROGRESS" &&
+    dueDate !== "DONE"
+  ) {
+    invalid_field = "Due Date";
+  }
+
+  if (invalid_field) {
+    res.send(`Invalid Todo ${invalid_field}`);
+    res.status(400);
   } else {
     next();
   }
-  console.log(invalid_field);
 };
 
 //API 1
@@ -169,7 +187,7 @@ app.get("/todos/:todoId/", async (req, res) => {
   res.send(todoItem);
 });
 
-app.get("/agenda/", async (req, res) => {
+app.get("/agenda/", checkValidity, async (req, res) => {
   const { date } = req.query;
   const formatedDate = format(new Date(date), "yyyy-MM-dd");
   const dbQuery = `SELECT 
@@ -180,7 +198,7 @@ app.get("/agenda/", async (req, res) => {
   res.send(dbResponse);
 });
 
-app.post("/todos/", async (req, res) => {
+app.post("/todos/", checkValidity, async (req, res) => {
   const { id, todo, priority, status, category, dueDate } = req.body;
   const getTodo = `
   INSERT INTO todo (id,todo,priority,status,category,due_date)
