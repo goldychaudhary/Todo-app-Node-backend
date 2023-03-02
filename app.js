@@ -46,18 +46,11 @@ const checkValidity = (req, res, next) => {
     invalid_field = "Status";
   } else if (
     category !== undefined &&
-    category !== "TO DO" &&
-    category !== "IN PROGRESS" &&
-    category !== "DONE"
+    category !== "LEARNING" &&
+    category !== "HOME" &&
+    category !== "WORK"
   ) {
     invalid_field = "Category";
-  } else if (
-    dueDate !== undefined &&
-    dueDate !== "TO DO" &&
-    dueDate !== "IN PROGRESS" &&
-    dueDate !== "DONE"
-  ) {
-    invalid_field = "Due Date";
   }
 
   if (invalid_field) {
